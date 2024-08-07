@@ -6,6 +6,8 @@ of general member names. This script will generate x number of additional sheets
 ## Steps to run: ##
 1. Download Python and openpyxl libraries (see Requirements)
 2. Prepare excel file as described below.
+3. Close out of the excel file - it will not be able to create new sheets if excel file is opened.
+4. Run the script as shown below.
 
 ## Requirements ##
 - Python 3.10.2 
