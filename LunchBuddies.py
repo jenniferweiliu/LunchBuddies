@@ -46,25 +46,31 @@ def writePairingsToExcel(wb, numWeeks, execs, generals):
         sheetName = f"Week {week + 1}"
         sheet = wb.create_sheet(sheetName)
         usedPairings = set()
+        usedExecs = set()
+        usedGenerals = set()
 
         # Assign unique pairings for this week
         row = 1
         for pairing in allPairings:
-            if pairing not in usedPairings:
-                exec_member, general_member = pairing
+            exec_member, general_member = pairing
+            if pairing not in usedPairings and exec_member not in usedExecs and general_member not in usedGenerals:
                 sheet[f"A{row}"] = exec_member
                 sheet[f"B{row}"] = general_member
                 row += 1
                 usedPairings.add(pairing)
+                usedExecs.add(exec_member)
+                usedGenerals.add(general_member)
 
                 # Once we have enough pairings for this week, break out of the loop
                 if len(usedPairings) == maxUniquePairings:
                     break
 
-        # Handle internal pairing within the larger group if necessary
-        remaining_members = (generals if len(generals) > len(execs) else execs).copy()
+        # Handle internal pairings if needed
+        unpairedExecs = [exec_member for exec_member in execs if exec_member not in usedExecs]
+        unpairedGenerals = [general_member for general_member in generals if general_member not in usedGenerals]
+        remaining_members = unpairedGenerals if len(unpairedGenerals) > len(unpairedExecs) else unpairedExecs
         random.shuffle(remaining_members)
-        
+
         while len(remaining_members) > 1:
             member1 = remaining_members.pop()
             member2 = remaining_members.pop()
@@ -76,6 +82,7 @@ def writePairingsToExcel(wb, numWeeks, execs, generals):
         if remaining_members:
             sheet[f"A{row}"] = remaining_members[0]
             sheet[f"B{row}"] = "No Pairing"
+            row += 1
 
         # Remove used pairings for subsequent weeks
         allPairings = [pair for pair in allPairings if pair not in usedPairings]
@@ -122,7 +129,7 @@ if __name__ == "__main__":
     writePairingsToExcel(wb, numWeeks, names[columnNames[0]], names[columnNames[1]])
     wb.save(excelFile)
 
-    print(f"Open {excelFile} to see the lunch buddies!")
+    print(f"Done processing. Open {excelFile} to see the lunch buddies!")
 
     
 
